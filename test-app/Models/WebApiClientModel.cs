@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-
+using System.Text;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
-using System.Text;
 using Newtonsoft.Json;
 using System.Security.Principal;
 using System.Security.Claims;
@@ -47,7 +46,7 @@ namespace test_app.Models
 
     public class WebApiClient
     {
-        public static void RequestLogicApp(HttpClient client, DataContractJsonSerializer serializer, String uri, ClaimsPrincipal usr)
+        public static async Task<String> RequestLogicApp(HttpClient client, String uri, ClaimsPrincipal usr)
         {
             
             client.DefaultRequestHeaders.Accept.Clear();
@@ -55,17 +54,16 @@ namespace test_app.Models
                 new MediaTypeWithQualityHeaderValue("application/json"));
             IIdentity id = usr.Identity;
             var dict = new Dictionary<String, String>();
-            dict.Add("bodyKey", "bodyValue");
-
-            dict.Add("Auth-Object", id.ToString());
             dict.Add("Auth-Name", id.Name);
+
             var indx = 0;
             foreach (var i in usr.Claims) {
                 dict.Add(i.Type, i.Value);
                 indx += 1;
             }
-            //var content = new StringContent(JsonConvert.SerializeObject(dict), Encoding.UTF8, "application/json");
-            var content = JsonConvert.SerializeObject(dict);
+
+            var content = new StringContent(JsonConvert.SerializeObject(dict), Encoding.UTF8, "application/json");
+            //var content = JsonConvert.SerializeObject(dict);
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine();
@@ -73,7 +71,13 @@ namespace test_app.Models
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine();
-            //var stringTask = await client.PostAsync(uri, content);
+            var streamTask = client.PostAsync(uri, content);
+            var str = await streamTask;
+            var body = await str.Content.ReadAsStringAsync();
+            str.Dispose();
+            streamTask.Dispose();
+            client.Dispose();
+            return body;
 
         }
         public static async Task<List<Repository>> ProcessRepositories(HttpClient client, DataContractJsonSerializer serializer)

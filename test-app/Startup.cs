@@ -11,7 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-
+using Microsoft.AspNetCore.Cors;
+using GetOutsideData;
 
 namespace test_app
 {
@@ -35,6 +36,14 @@ namespace test_app
             .AddAzureAd(options => Configuration.Bind("AzureAd", options))
             .AddCookie();
 
+            services.AddCors(options => 
+            { 
+                options.AddPolicy("AllowSpecificOrigins", builder => 
+                { 
+                    builder.WithOrigins("http://localhost", "https://prod-08.centralus.logic.azure.com, https://dev-test-functions.azurewebsites.net").AllowCredentials(); 
+                });
+            }); 
+
             services.AddMvc();
         }
 
@@ -52,7 +61,10 @@ namespace test_app
 
             app.UseStaticFiles();
 
+            app.UseCors("AllowSpecificOrigins");
             app.UseAuthentication();
+
+            app.GetOutsideDataTemplate();
 
             app.UseMvc(routes =>
             {
