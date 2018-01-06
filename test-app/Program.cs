@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
+using System.Net.Http;
+using System.Net.Http.Headers;
+
 namespace test_app
 {
     public class Program
@@ -19,7 +22,9 @@ namespace test_app
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();
+
     }
 }

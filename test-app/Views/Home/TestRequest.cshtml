@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Test Request";
+
+}
+<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Message"]</h3>
+
+<p>Result:</p>
+
+
+@foreach (var item in ViewData["Repositories"] as List<Repository>) {
+<html>
+<h3>@item.Name</h3>
+<h4>@item.Description</h4>
+<hr>
+</html>
+}
